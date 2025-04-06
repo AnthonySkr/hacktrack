@@ -1,12 +1,13 @@
-import React from "react";
-import AppRoutes from "./routes/AppRoutes";
+import Navbar from "./components/Navbar";
+import AppRouter from "./components/AppRouter";
 
-const App = () => {
+function App() {
    return (
-      <div>
-         <AppRoutes />
-      </div>
+      <>
+         <Navbar />
+         <AppRouter />
+      </>
    );
-};
+}
 
 export default App;
