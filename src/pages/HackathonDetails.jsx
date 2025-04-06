@@ -1,39 +1,54 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom"; // Replace useHistory with useNavigate
+import { useParams } from "react-router-dom";
+import Loader from "../components/Loader";
 
 function HackathonDetails() {
    const { id } = useParams();
-   const navigate = useNavigate(); // Replace useHistory with useNavigate
    const [hackathon, setHackathon] = useState(null);
    const [teamName, setTeamName] = useState("");
    const [errorMessage, setErrorMessage] = useState("");
-   const [user, setUser] = useState(null); // Information utilisateur pour vérifier l'authentification
+   const [user, setUser] = useState(null);
+   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      // Chargement du hackathon
-      axios
-         .get(`http://localhost:3002/hackathons/${id}`)
-         .then((res) => setHackathon(res.data))
-         .catch((err) =>
-            console.error("Erreur lors du chargement du hackathon", err)
-         );
+      const fetchData = async () => {
+         try {
+            // Charger les données du hackathon
+            const hackathonRes = await axios.get(
+               `http://localhost:3002/hackathons/${id}`
+            );
+            setHackathon(hackathonRes.data);
 
-      // Chargement des informations utilisateur pour vérifier l'authentification
-      axios
-         .get("http://localhost:3002/auth/me", {
-            headers: {
-               Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-         })
-         .then((res) => setUser(res.data))
-         .catch(() => setUser(null));
+            // Charger les informations utilisateur
+            const userRes = await axios.get("http://localhost:3002/auth/me", {
+               headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+               },
+            });
+            setUser(userRes.data);
+         } catch (err) {
+            console.error("Erreur lors du chargement des données", err);
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      fetchData();
    }, [id]);
 
-   const handleCreateTeam = (e) => {
+   const formatDate = (date) => {
+      return new Date(date).toLocaleDateString("fr-FR", {
+         year: "numeric",
+         month: "long",
+         day: "numeric",
+      });
+   };
+
+   const handleCreateTeam = async (e) => {
       e.preventDefault();
       if (!user) {
-         setErrorMessage("Vous devez être connecté pour créer une équipe.");
+         alert("Vous devez être connecté pour créer une équipe.");
          return;
       }
 
@@ -42,52 +57,37 @@ function HackathonDetails() {
          return;
       }
 
-      // Création de l'équipe
-      axios
-         .post(
+      try {
+         await axios.post(
             "http://localhost:3002/teams/create",
-            { name: teamName, hackathonId: Number(id) }, // Convertir id en nombre
+            { name: teamName, hackathonId: Number(id) },
             {
                headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                },
             }
-         )
-         .then((res) => {
-            alert("Équipe créée avec succès");
-            setTeamName(""); // Réinitialiser le nom de l'équipe
-            navigate(`/hackathons/${id}`);
-         })
-         .catch((err) => {
-            const error =
-               err.response?.data?.error ||
-               "Erreur lors de la création de l'équipe";
-            setErrorMessage(
-               typeof error === "string" ? error : JSON.stringify(error)
-            );
-         });
+         );
+         alert("Équipe créée avec succès");
+         setTeamName("");
+         window.location.reload(); // Recharger la page pour mettre à jour l'état
+      } catch (err) {
+         const error =
+            err.response?.data?.error ||
+            "Erreur lors de la création de l'équipe";
+         setErrorMessage(
+            typeof error === "string" ? error : JSON.stringify(error)
+         );
+      }
    };
 
-   // Affichage des erreurs
-   {
-      errorMessage && (
-         <p style={styles.error}>
-            {typeof errorMessage === "string"
-               ? errorMessage
-               : "Une erreur est survenue."}
-         </p>
-      );
-   }
-
-   const handleJoinTeam = (teamId) => {
+   const handleJoinTeam = async (teamId) => {
       if (!user) {
-         setErrorMessage("Vous devez être connecté pour rejoindre une équipe.");
+         alert("Vous devez être connecté pour rejoindre une équipe.");
          return;
       }
 
-      // Rejoindre une équipe existante
-      axios
-         .post(
+      try {
+         await axios.post(
             `http://localhost:3002/teams/join/${teamId}`,
             {},
             {
@@ -95,55 +95,61 @@ function HackathonDetails() {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                },
             }
-         )
-         .then((res) => {
-            alert("Vous avez rejoint l'équipe avec succès.");
-            navigate(`/hackathons/${id}`); // Replace history.push with navigate
-         })
-         .catch((err) =>
-            setErrorMessage(
-               err.response?.data?.error ||
-                  "Erreur lors de l'adhésion à l'équipe"
-            )
          );
+         alert("Vous avez rejoint l'équipe avec succès.");
+         window.location.reload(); // Recharger la page pour mettre à jour l'état
+      } catch (err) {
+         setErrorMessage(
+            err.response?.data?.error || "Erreur lors de l'adhésion à l'équipe"
+         );
+      }
    };
 
-   if (!hackathon) return <p>Chargement...</p>;
+   if (loading) return <Loader />;
+
+   if (!hackathon) return <p>Hackathon introuvable.</p>;
+
+   // Vérifier si le hackathon est passé
+   const isHackathonOver = new Date(hackathon.endDate) < new Date();
 
    return (
       <div style={styles.container}>
-         <h1>{hackathon.name}</h1>
-         <p>
-            Date: {hackathon.startDate} - {hackathon.endDate}
+         <h1 style={styles.title}>{hackathon.name}</h1>
+         <p style={styles.info}>
+            <strong>Date :</strong> {formatDate(hackathon.startDate)} -{" "}
+            {formatDate(hackathon.endDate)}
          </p>
-         <p>Thème: {hackathon.theme}</p>
+         <p style={styles.info}>
+            <strong>Thème :</strong> {hackathon.theme}
+         </p>
 
-         {/* Affichage du formulaire de création d'équipe si l'utilisateur est connecté */}
-         {user && (
-            <div>
-               <h3>Créer une équipe</h3>
-               <form onSubmit={handleCreateTeam}>
-                  <input
-                     type="text"
-                     placeholder="Nom de l'équipe"
-                     value={teamName}
-                     onChange={(e) => setTeamName(e.target.value)}
-                     required
-                  />
-                  <button type="submit">Créer</button>
-               </form>
+         {!isHackathonOver && (
+            <div style={styles.actions}>
+               <div style={styles.createTeam}>
+                  <h3>Créer une équipe</h3>
+                  <form onSubmit={handleCreateTeam}>
+                     <input
+                        type="text"
+                        placeholder="Nom de l'équipe"
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                        style={styles.input}
+                        required
+                     />
+                     <button type="submit" style={styles.createButton}>
+                        Créer
+                     </button>
+                  </form>
+               </div>
             </div>
          )}
 
-         {/* Affichage du message d'erreur si nécessaire */}
-         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-
-         <h2>Équipes inscrites</h2>
+         <h3>Équipes inscrites</h3>
          <ul style={styles.list}>
             {hackathon.teams.map((team) => (
                <li key={team.id} style={styles.item}>
                   <span>{team.name}</span>
-                  {user && (
+                  {!isHackathonOver && (
                      <button
                         onClick={() => handleJoinTeam(team.id)}
                         style={styles.joinButton}>
@@ -153,34 +159,83 @@ function HackathonDetails() {
                </li>
             ))}
          </ul>
+
+         {isHackathonOver && (
+            <p style={styles.info}>
+               Ce hackathon est terminé. Vous ne pouvez plus créer ou rejoindre
+               une équipe.
+            </p>
+         )}
+
+         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
       </div>
    );
 }
 
 const styles = {
    container: {
-      padding: "1rem",
+      padding: "2rem",
+      maxWidth: "800px",
+      margin: "0 auto",
+      backgroundColor: "#f9f9f9",
+      borderRadius: "8px",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+   },
+   title: {
+      fontSize: "2rem",
+      marginBottom: "1rem",
+      color: "#333",
+   },
+   info: {
+      marginBottom: "1rem",
+      color: "#555",
+   },
+   createTeam: {
+      marginBottom: "2rem",
+   },
+   input: {
+      padding: "0.5rem",
+      marginRight: "1rem",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+   },
+   createButton: {
+      padding: "0.5rem 1rem",
+      backgroundColor: "#4CAF50",
+      color: "#fff",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+   },
+   actions: {
+      marginBottom: "2rem",
    },
    list: {
       listStyleType: "none",
-      paddingLeft: 0,
+      padding: 0,
    },
    item: {
-      marginBottom: "1rem",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
+      marginBottom: "1rem",
+      padding: "0.5rem",
+      backgroundColor: "#fff",
+      borderRadius: "4px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
    },
    joinButton: {
-      backgroundColor: "#4CAF50",
-      color: "white",
-      padding: "5px 10px",
+      padding: "0.5rem 1rem",
+      backgroundColor: "#007BFF",
+      color: "#fff",
       border: "none",
+      borderRadius: "4px",
       cursor: "pointer",
    },
    error: {
       color: "red",
       fontWeight: "bold",
+      marginBottom: "1rem",
    },
 };
 

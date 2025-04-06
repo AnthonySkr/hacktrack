@@ -71,29 +71,66 @@ function Register() {
 
 const styles = {
    container: {
-      width: "300px",
-      margin: "0 auto",
+      maxWidth: "400px",
+      margin: "50px auto",
       padding: "20px",
       borderRadius: "8px",
-      backgroundColor: "#f9f9f9",
+      backgroundColor: "#ffffff",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+   },
+   title: {
+      fontSize: "1.8rem",
+      marginBottom: "20px",
+      textAlign: "center",
+      color: "#333",
    },
    form: {
       display: "flex",
       flexDirection: "column",
+      gap: "15px",
    },
    inputGroup: {
-      marginBottom: "10px",
+      display: "flex",
+      flexDirection: "column",
+   },
+   label: {
+      marginBottom: "5px",
+      fontSize: "0.9rem",
+      color: "#555",
+   },
+   input: {
+      padding: "10px",
+      fontSize: "1rem",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      outline: "none",
+      transition: "border-color 0.3s",
+   },
+   inputFocus: {
+      borderColor: "#007bff",
+   },
+   error: {
+      color: "red",
+      fontSize: "0.8rem",
+      marginTop: "5px",
    },
    button: {
-      padding: "0.8rem",
+      padding: "10px",
+      fontSize: "1rem",
       backgroundColor: "#007bff",
       color: "#fff",
       border: "none",
       borderRadius: "4px",
       cursor: "pointer",
+      transition: "background-color 0.3s",
    },
-   error: {
+   buttonHover: {
+      backgroundColor: "#0056b3",
+   },
+   errorMessage: {
       color: "red",
+      fontSize: "0.9rem",
+      textAlign: "center",
       marginBottom: "10px",
    },
 };

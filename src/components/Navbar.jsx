@@ -19,7 +19,7 @@ function Navbar() {
 
          <div style={styles.links}>
             <Link to="/hackathons" style={styles.link}>
-               Hackathons
+               Voir les Hackathons
             </Link>
 
             {!user ? (
@@ -45,31 +45,42 @@ const styles = {
    nav: {
       display: "flex",
       justifyContent: "space-between",
-      padding: "1rem",
-      borderBottom: "1px solid #ddd",
+      alignItems: "center",
+      padding: "1rem 2rem",
+      backgroundColor: "#1a1a2e",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
    },
    logo: {
       fontWeight: "bold",
-      fontSize: "1.2rem",
+      fontSize: "1.5rem",
       textDecoration: "none",
-      color: "#333",
+      color: "#e94560",
    },
    links: {
       display: "flex",
-      gap: "1rem",
+      gap: "1.5rem",
    },
    link: {
       textDecoration: "none",
-      color: "#555",
+      color: "#eaeaea",
+      fontSize: "1rem",
+      transition: "color 0.3s ease",
+   },
+   linkHover: {
+      color: "#e94560",
    },
    button: {
-      padding: "0.4rem 0.8rem",
-      border: "1px solid #555",
-      background: "transparent",
+      padding: "0.5rem 1rem",
+      border: "none",
+      backgroundColor: "#e94560",
+      color: "#fff",
       cursor: "pointer",
       borderRadius: "4px",
-      textDecoration: "none",
-      color: "#333",
+      fontSize: "1rem",
+      transition: "background-color 0.3s ease",
+   },
+   buttonHover: {
+      backgroundColor: "#d33f57",
    },
 };
 
