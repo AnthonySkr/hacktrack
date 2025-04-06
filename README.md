@@ -1,12 +1,70 @@
-# React + Vite
+# HackTrack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+HackTrack est une application web permettant de gérer des hackathons, les équipes participantes et les utilisateurs. Elle est construite avec **React**, **React Router**, et **Axios** pour le frontend, et une API backend basée sur **Express.js** et **Prisma**.
 
-Currently, two official plugins are available:
+## Fonctionnalités
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+-  Affichage des hackathons à venir et passés.
+-  Détails des hackathons avec possibilité de créer ou rejoindre une équipe.
+-  Authentification des utilisateurs (inscription, connexion, déconnexion).
+-  Gestion des utilisateurs via un contexte global.
 
-## Expanding the ESLint configuration
+## Structure du projet
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+hacktrack/
+├── src/
+│   ├── api/                # Appels API
+│   ├── components/         # Composants réutilisables
+│   ├── context/            # Contexte global pour l'authentification
+│   ├── pages/              # Pages principales de l'application
+│   ├── styles/             # Fichiers CSS
+│   ├── App.jsx             # Composant principal
+│   ├── main.jsx            # Point d'entrée de l'application
+├── vite.config.js          # Configuration de Vite
+├── package.json            # Dépendances et scripts
+```
+
+## Installation
+
+### Prérequis
+
+-  Node.js
+-  npm
+
+### Étapes
+
+1. Clonez le dépôt :
+
+   ```bash
+   git clone <repository-url>
+   cd hacktrack
+   ```
+
+2. Installez les dépendances :
+
+   ```bash
+   npm install
+   ```
+
+3. Configurez l'API backend :
+
+   -  Suivez les instructions dans le fichier `README.md` du dossier `hacktrack-api`.
+
+4. Lancez l'application en mode développement :
+
+   ```bash
+   npm run dev
+   ```
+
+5. Ouvrez votre navigateur à l'adresse suivante :
+   ```
+   http://localhost:5173
+   ```
+
+## Dépendances principales
+
+-  **React** : Bibliothèque pour construire l'interface utilisateur.
+-  **React Router** : Gestion des routes.
+-  **Axios** : Appels HTTP vers l'API backend.
+-  **Zod** : Validation des formulaires.
